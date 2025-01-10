@@ -1,86 +1,72 @@
-global simbolo, jogador_da_vez,variavel_de_controle_jogo
-def condicao_de_vitoria(tabuleiro,i):
-    for l in range(0, 3):
-    # VERIFICA LINHA
+def condicao_de_vitoria(tabuleiro, jogador_da_vez):
+    # Verifica linhas e colunas
+    for l in range(3):
         if tabuleiro[l][0] == tabuleiro[l][1] == tabuleiro[l][2] != '':
             print(f'A vitória foi de {jogador_da_vez} na linha {l + 1}')
-            variavel_de_controle_jogo = False  # INTERROMPE O LAÇO CONTINUO
-            break  # INTERROMPE O 'FOR'
-
-        # VERIFICA COLUNA
-        elif tabuleiro[0][l] == tabuleiro[1][l] == tabuleiro[2][l] != '':
+            return True
+        if tabuleiro[0][l] == tabuleiro[1][l] == tabuleiro[2][l] != '':
             print(f'A vitória foi de {jogador_da_vez} na coluna {l + 1}')
+            return True
 
-            variavel_de_controle_jogo = False
-            break
+    # Verifica diagonais
+    if tabuleiro[0][0] == tabuleiro[1][1] == tabuleiro[2][2] != '' or \
+       tabuleiro[0][2] == tabuleiro[1][1] == tabuleiro[2][0] != '':
+        print(f'A vitória foi de {jogador_da_vez} na diagonal')
+        return True
 
-        # VERIFICA AS DIAGONAIS
-        elif tabuleiro[0][0] == tabuleiro[1][1] == tabuleiro[2][2] or tabuleiro[0][2] == tabuleiro[1][1] == \
-                tabuleiro[2][0]:
-            print(f'A vitória foi de {jogador_da_vez}')
-            variavel_de_controle_jogo = False
-            break
+    return False
 
-        # SE CHEGAR A 9 JOGADAS SEM VITÓRIA DECLARAR EMPATE
-        else:
-            if i == 9:
-                print('Empate')
-                break
+def imprimir_tabuleiro(tabuleiro):
+    print(f'''
+ {tabuleiro[0][0] or ' ':^3}|{tabuleiro[0][1] or ' ':^3}|{tabuleiro[0][2] or ' ':^3}
+---+---+---
+ {tabuleiro[1][0] or ' ':^3}|{tabuleiro[1][1] or ' ':^3}|{tabuleiro[1][2] or ' ':^3}
+---+---+---
+ {tabuleiro[2][0] or ' ':^3}|{tabuleiro[2][1] or ' ':^3}|{tabuleiro[2][2] or ' ':^3}
+''')
 
 def jogo_da_velha():
-
-    tabuleiro = [['','',''],['','',''],['','','']]
-
     while True:
+        tabuleiro = [['', '', ''], ['', '', ''], ['', '', '']]
         jogador_1 = input('Digite o nome do jogador 1: ')
         jogador_2 = input('Digite o nome do jogador 2: ')
 
-        variavel_de_controle_de_jogador = [[jogador_1, 'X'],[jogador_2, 'O']]
-        variavel_de_controle_jogo = True
+        jogadores = [[jogador_1, 'X'], [jogador_2, 'O']]
+        jogo_ativo = True
 
-        # JOGO EM SI, LAÇO CONT COM O N° MÁXIMO DE JOGADAS POSSIVEIS
         for i in range(9):
-            # jogador_da_vez = variavel_de_controle_de_jogador[0][0], simbolo = variavel_de_controle_de_jogador[0][1] if i % 2 == 0 else jogador_da_vez = variavel_de_controle_de_jogador[1][0], simbolo = variavel_de_controle_de_jogador[1][1]
-            if i % 2 == 0:  # DEFINIÇÃO DE NOME E SIMBOLO DE JOGADOR
-                jogador_da_vez = variavel_de_controle_de_jogador[0][0]
-                simbolo = variavel_de_controle_de_jogador[0][1]
-            else:  # DEFINIÇÃO DE NOME E SIMBOLO DE JOGADOR
-                jogador_da_vez = variavel_de_controle_de_jogador[1][0]
-                simbolo = variavel_de_controle_de_jogador[1][1]
+            jogador_da_vez, simbolo = jogadores[i % 2]
+            print(f'\nÉ a vez de {jogador_da_vez}')
+            imprimir_tabuleiro(tabuleiro)
 
-            print(f'É a vez do jogador {jogador_da_vez[0]}')
+            # Jogada do jogador
+            while True:
+                try:
+                    linha = int(input('Informe a linha [1-3]: ')) - 1
+                    coluna = int(input('Informe a coluna [1-3]: ')) - 1
+                    if 0 <= linha <= 2 and 0 <= coluna <= 2 and tabuleiro[linha][coluna] == '':
+                        tabuleiro[linha][coluna] = simbolo
+                        break
+                    else:
+                        print('Posição inválida ou já ocupada. Tente novamente.')
+                except ValueError:
+                    print('Entrada inválida. Use números entre 1 e 3.')
 
-            # LAÇO CONTINUO
-            while variavel_de_controle_jogo:
-
-                # DEFINIÇÃO DA JOGADA, LINHA E COLUNA
-                linha = int(input('Informe onde adicionar seu simbolo na linha[1,2,3]: ')) - 1
-                coluna = int(input('Informe onde adicionar seu simbolo na coluna [1,2,3]: ')) - 1
-                if tabuleiro[linha][coluna] == '':  # VERIFICAÇÃO SE A MATRIZ ESTÁ DISPONIVEL OU NÃO, SE SIM ADICIONA O SIMBOLO EQUIVALENTE AO JOGADOR E QUEBRA O LAÇO CONTINUO
-                    tabuleiro[linha][coluna] = simbolo
-                    break
-
-                # SE NÃO ESCREVE QUE JÁ TEM ITEM E CONTINUA PEDINDO UMA COORDENADA PARA O SIMBOLO
-                else:
-                    print('Já contém item, tente novamente')
-
-            print(f'''{tabuleiro[0][0]:^3}|{tabuleiro[0][1]:^3}|{tabuleiro[0][2]:^3}
-            -----------\n{tabuleiro[1][0]:^3}|{tabuleiro[1][1]:^3}|{tabuleiro[1][2]:^3}
-            -----------\n{tabuleiro[2][0]:^3}|{tabuleiro[2][1]:^3}|{tabuleiro[2][2]:^3}''')
-
-            # VERIFICAR CONDIÇÃO DE VITÓRIA A PARTIR DA QUINTA JOGADA
-            if i > 4:
-                condicao_de_vitoria(tabuleiro,i)
-
-            # SE A VARIAVEL DE CONTROLE RECEBER FALSE ANTES DO LOOP PRINCIPAL ACABAR, INTERROMPER O LOOP
-            if variavel_de_controle_jogo == False:
+            # Verifica condição de vitória
+            if i >= 4 and condicao_de_vitoria(tabuleiro, jogador_da_vez):
+                imprimir_tabuleiro(tabuleiro)
+                jogo_ativo = False
                 break
 
-        escape = input('Voce quer continuar com uma nova partida?[S/N]').upper()
-        while escape not in 'SN':
-            escape = input('Voce quer continuar com uma nova partida?[S/N]').upper()
-        if escape in 'S':
-            tabuleiro = [['', '', ''], ['', '', ''], ['', '', '']]
-            continue
-        else:
+        if jogo_ativo:  # Se nenhum jogador venceu após 9 rodadas
+            print('Empate!')
+            imprimir_tabuleiro(tabuleiro)
+
+        # Pergunta se os jogadores querem jogar novamente
+        continuar = input('Deseja jogar novamente? [S/N]: ').strip().upper()
+        while continuar not in ['S', 'N']:
+            continuar = input('Resposta inválida. Deseja jogar novamente? [S/N]: ').strip().upper()
+        if continuar == 'N':
             break
+
+jogo_da_velha()
